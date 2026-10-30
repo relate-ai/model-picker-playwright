@@ -183,11 +183,19 @@ with sync_playwright() as p:
     check("mobile no horizontal overflow", not overflow)
     mpage.close()
 
-    video_path = page.video.path() if page.video else None
     context.close()
     browser.close()
-    print("VIDEO_DEBUG path=" + str(video_path) + " exists=" + str(os.path.exists(video_path) if video_path else False), flush=True)
-    if video_path and os.path.exists(video_path):
+    # Find the most recently created webm and rename it.
+    webms = [os.path.join(SCREENSHOT_DIR, f) for f in os.listdir(SCREENSHOT_DIR) if f.endswith(".webm")]
+    webms.sort(key=lambda f: os.path.getmtime(f), reverse=True)
+    if webms:
+        try:
+            os.replace(webms[0], os.path.join(SCREENSHOT_DIR, "two-provider-comparison.webm"))
+            print("VIDEO: " + os.path.join(SCREENSHOT_DIR, "two-provider-comparison.webm"), flush=True)
+        except Exception as e:
+            print("VIDEO_RENAME_ERROR: " + str(e), flush=True)
+    else:
+        print("NO_WEBM_FOUND", flush=True)
         target = os.path.join(SCREENSHOT_DIR, "two-provider-comparison.webm")
         try:
             os.replace(video_path, target)
