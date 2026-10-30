@@ -32,7 +32,8 @@ with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
 
     # Desktop functional and data checks.
-    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    context = browser.new_context(viewport={"width": 1440, "height": 900}, record_video_dir=SCREENSHOT_DIR, record_video_size={"width": 1440, "height": 900})
+    page = context.new_page()
     page.goto(URL, wait_until="networkidle", timeout=60000)
     page.screenshot(path=os.path.join(SCREENSHOT_DIR, "desktop.png"), full_page=True)
 
@@ -148,6 +149,32 @@ with sync_playwright() as p:
         tel_rows = page.locator("#telemetryTable tbody tr").count()
         check("telemetry rows present", tel_rows > 0, str(tel_rows))
 
+    # Two-provider comparison scenario with verification.
+    page.fill("#searchInput", "")
+    page.select_option("#providerFilter", "")
+    page.select_option("#sortSelect", "id")
+    page.wait_for_timeout(300)
+    # Pick first cloudflare model and first openrouter model.
+    cf_row = page.locator("#modelTable tbody tr[data-id^='cloudflare-ai-gateway/']").first
+    or_row = page.locator("#modelTable tbody tr[data-id^='openrouter/']").first
+    cf_id = cf_row.get_attribute("data-id")
+    or_id = or_row.get_attribute("data-id")
+    page.locator(f"#modelTable tbody tr[data-id='{cf_id}'] .compare-check").check()
+    page.locator(f"#modelTable tbody tr[data-id='{or_id}'] .compare-check").check()
+    page.wait_for_timeout(500)
+    compare_text = page.locator("#compareGrid").inner_text()
+    check("two-provider compare shows first model", cf_id in compare_text, compare_text[:200])
+    check("two-provider compare shows second model", or_id in compare_text, compare_text[:200])
+    # Verify at least one price field from each model appears in compare cards.
+    cf_model = next(m for m in models if m["id"] == cf_id)
+    or_model = next(m for m in models if m["id"] == or_id)
+    cf_price = str((cf_model.get("effective_rates") or {}).get("input_usd_per_million"))
+    or_price = str((or_model.get("effective_rates") or {}).get("input_usd_per_million"))
+    check("compare displays first input price", cf_price in compare_text, compare_text[:300])
+    check("compare displays second input price", or_price in compare_text, compare_text[:300])
+    page.click("#clearCompare")
+    page.wait_for_timeout(200)
+
     # Mobile checks.
     mpage = browser.new_page(viewport={"width": 390, "height": 844})
     mpage.goto(URL, wait_until="networkidle", timeout=60000)
@@ -156,6 +183,7 @@ with sync_playwright() as p:
     check("mobile no horizontal overflow", not overflow)
     mpage.close()
 
+    context.close()
     browser.close()
 
 result = "ALL VISUAL CHECKS PASSED" if not failures else "FAILED CHECKS: " + ", ".join(failures)
