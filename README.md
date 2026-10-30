@@ -13,3 +13,5 @@ Checks:
 - mobile overflow
 
 Screenshots and result are written to the mounted `/app/screenshots` volume.
+
+Recorded comparison video: screenshots/two-provider-comparison.webm
