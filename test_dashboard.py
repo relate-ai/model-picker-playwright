@@ -79,7 +79,10 @@ with sync_playwright() as p:
             if len(examples) < 10:
                 examples.append((m["id"], actual))
     page.fill("#searchInput", "")
-    print("SEARCH_DEBUG failures", search_failures, "examples", examples)
+    debug = f"SEARCH_DEBUG failures {search_failures} examples {examples}"
+    print(debug, flush=True)
+    with open(os.path.join(SCREENSHOT_DIR, "search-debug.txt"), "w") as f:
+        f.write(debug + "\n")
     check("search every model id", search_failures == 0, f"{search_failures} failures {examples}")
 
     # Sort options must not error and retain full row count.
