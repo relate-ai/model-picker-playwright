@@ -186,6 +186,7 @@ with sync_playwright() as p:
     video_path = page.video.path() if page.video else None
     context.close()
     browser.close()
+    print("VIDEO_DEBUG path=" + str(video_path) + " exists=" + str(os.path.exists(video_path) if video_path else False), flush=True)
     if video_path and os.path.exists(video_path):
         target = os.path.join(SCREENSHOT_DIR, "two-provider-comparison.webm")
         try:
