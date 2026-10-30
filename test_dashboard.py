@@ -183,8 +183,16 @@ with sync_playwright() as p:
     check("mobile no horizontal overflow", not overflow)
     mpage.close()
 
+    video_path = page.video.path() if page.video else None
     context.close()
     browser.close()
+    if video_path and os.path.exists(video_path):
+        target = os.path.join(SCREENSHOT_DIR, "two-provider-comparison.webm")
+        try:
+            os.replace(video_path, target)
+            print("VIDEO: " + target, flush=True)
+        except Exception as e:
+            print("VIDEO_RENAME_ERROR: " + str(e), flush=True)
 
 result = "ALL VISUAL CHECKS PASSED" if not failures else "FAILED CHECKS: " + ", ".join(failures)
 print(result)
