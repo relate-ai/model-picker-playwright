@@ -80,7 +80,7 @@ with sync_playwright() as p:
             if len(examples) < 10:
                 examples.append((m["id"], actual, exact))
     page.fill("#searchInput", "")
-    debug = f"SEARCH_DEBUG failures {search_failures} examples {examples}"
+    debug = f"SEARCH_DEBUG failures {search_failures} examples {examples} failures_list={failures}"
     print(debug, flush=True)
     with open(os.path.join(SCREENSHOT_DIR, "search-debug.txt"), "w") as f:
         f.write(debug + "\n")
