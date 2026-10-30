@@ -94,6 +94,11 @@ print(result)
 with open(os.path.join(SCREENSHOT_DIR, "result.txt"), "w") as f:
     f.write(result + "\n")
     f.write("screenshots: desktop.png, mobile.png\n")
+import time
+with open("/tmp/playwright-result.txt","w") as f:
+    f.write(result + "\n")
+print(result, flush=True)
+time.sleep(300)
 if failures:
     sys.exit(1)
 PY
