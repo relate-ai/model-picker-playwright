@@ -91,10 +91,6 @@ with sync_playwright() as p:
     mpage.goto(URL, wait_until="networkidle", timeout=60000)
     mpage.screenshot(path=os.path.join(SCREENSHOT_DIR, "mobile.png"), full_page=True)
     overflow = mpage.evaluate("() => document.documentElement.scrollWidth > window.innerWidth + 2")
-    sw = mpage.evaluate("() => document.documentElement.scrollWidth")
-    iw = mpage.evaluate("() => window.innerWidth")
-    offenders = mpage.evaluate("""() => Array.from(document.querySelectorAll('*')).filter(e => e.getBoundingClientRect().right > window.innerWidth + 1).map(e => e.tagName + (e.id?('#'+e.id):'') + (e.className?('.'+String(e.className).split(' ')[0]):'')).slice(0,20)""")
-    print("MOBILE_DEBUG scrollWidth", sw, "innerWidth", iw, "offenders", offenders)
     check("mobile no horizontal overflow", not overflow)
     mpage.close()
 
