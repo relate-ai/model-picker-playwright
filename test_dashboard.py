@@ -6,6 +6,13 @@ URL = os.environ.get("DASHBOARD_URL", "https://model-picker.relate-ai.site")
 TOKEN = os.environ.get("MODEL_PICKER_TOKEN", "")
 SCREENSHOT_DIR = os.environ.get("SCREENSHOT_DIR", "/app/screenshots")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+try:
+    with open(os.path.join(SCREENSHOT_DIR, "started.txt"), "w") as f:
+        f.write("started\n")
+except Exception as e:
+    with open("/tmp/started-error.txt", "w") as f:
+        f.write(str(e))
+
 
 failures = []
 
