@@ -89,8 +89,11 @@ with sync_playwright() as p:
 
     browser.close()
 
+result = "ALL VISUAL CHECKS PASSED" if not failures else "FAILED CHECKS: " + ", ".join(failures)
+print(result)
+with open(os.path.join(SCREENSHOT_DIR, "result.txt"), "w") as f:
+    f.write(result + "\n")
+    f.write("screenshots: desktop.png, mobile.png\n")
 if failures:
-    print("FAILED CHECKS:", failures)
     sys.exit(1)
-print("ALL VISUAL CHECKS PASSED")
 PY
