@@ -74,10 +74,11 @@ with sync_playwright() as p:
         page.fill("#searchInput", m["id"])
         page.wait_for_timeout(100)
         actual = page.locator("#modelTable tbody tr").count()
-        if actual != 1:
+        first_id = page.locator("#modelTable tbody tr").first.get_attribute("data-id") if actual else None
+        if actual < 1 or first_id != m["id"]:
             search_failures += 1
             if len(examples) < 10:
-                examples.append((m["id"], actual))
+                examples.append((m["id"], actual, first_id))
     page.fill("#searchInput", "")
     debug = f"SEARCH_DEBUG failures {search_failures} examples {examples}"
     print(debug, flush=True)
