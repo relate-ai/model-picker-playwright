@@ -69,13 +69,18 @@ with sync_playwright() as p:
 
     # Search every model id must return exactly one row.
     search_failures = 0
+    examples = []
     for m in models:
         page.fill("#searchInput", m["id"])
-        page.wait_for_timeout(50)
-        if page.locator("#modelTable tbody tr").count() != 1:
+        page.wait_for_timeout(100)
+        actual = page.locator("#modelTable tbody tr").count()
+        if actual != 1:
             search_failures += 1
+            if len(examples) < 10:
+                examples.append((m["id"], actual))
     page.fill("#searchInput", "")
-    check("search every model id", search_failures == 0, f"{search_failures} failures")
+    print("SEARCH_DEBUG failures", search_failures, "examples", examples)
+    check("search every model id", search_failures == 0, f"{search_failures} failures {examples}")
 
     # Sort options must not error and retain full row count.
     for sort_value in ["id", "provider", "-input_usd_per_million", "input_usd_per_million",
